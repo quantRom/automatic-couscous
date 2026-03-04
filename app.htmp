@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Просмотр рекламы</title>
+    <!-- Подключаем официальный скрипт Telegram Web App -->
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--tg-theme-bg-color, #ffffff);
+            color: var(--tg-theme-text-color, #000000);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        .ad-container {
+            background-color: var(--tg-theme-secondary-bg-color, #f0f0f0);
+            border-radius: 15px;
+            padding: 30px;
+            width: 100%;
+            max-width: 350px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .timer {
+            font-size: 48px;
+            font-weight: bold;
+            color: var(--tg-theme-button-color, #2481cc);
+            margin: 20px 0;
+        }
+
+        .banner {
+            width: 100%;
+            height: 150px;
+            background-color: #ddd;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            color: #666;
+            font-style: italic;
+        }
+
+        button {
+            background-color: var(--tg-theme-button-color, #2481cc);
+            color: var(--tg-theme-button-text-color, #ffffff);
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            transition: opacity 0.3s;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ad-container">
+        <h1>Рекламный блок</h1>
+        
+        <!-- Место под реальную рекламу (например, Яндекс Директ или Google AdSense) -->
+        <div class="banner">
+            Здесь будет ваша реклама
+        </div>
+
+        <p id="status-text">Подождите окончания таймера для получения награды...</p>
+        <div class="timer" id="timer-display">10</div>
+        
+        <button id="claim-btn" disabled>Получить награду</button>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Разворачиваем на весь экран
+
+        let timeLeft = 30;
+        const timerDisplay = document.getElementById('timer-display');
+        const claimBtn = document.getElementById('claim-btn');
+        const statusText = document.getElementById('status-text');
+
+        // Таймер обратного отсчета
+        const countdown = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+                clearInterval(countdown);
+                timerDisplay.style.display = 'none';
+                statusText.textContent = "Спасибо за просмотр!";
+                statusText.style.color = "green";
+                statusText.style.fontWeight = "bold";
+                
+                // Активируем кнопку
+                claimBtn.disabled = false;
+            }
+        }, 1000);
+
+        // Обработка нажатия на кнопку "Получить награду"
+        claimBtn.addEventListener('click', () => {
+            // Подготавливаем данные для отправки боту
+            const data = JSON.stringify({
+                action: 'ad_watched',
+                timestamp: new Date().getTime()
+            });
+
+            // Отправляем данные боту (это вызовет событие web_app_data в Python)
+            tg.sendData(data);
+            
+            // Закрываем Mini App
+            tg.close();
+        });
+    </script>
+</body>
+</html>
